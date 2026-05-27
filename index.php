@@ -89,6 +89,36 @@ $user_name = $_SESSION['user_name'];
                 </div>
             </li>
 
+            <!-- Nav Item - User-->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+                    aria-expanded="true" aria-controls="collapseUsers">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Users</span>
+                </a>
+                <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">User Management:</h6>
+                        <a class="collapse-item" href="users_list.php">User List</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Vehicles-->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseVehicles"
+                    aria-expanded="true" aria-controls="collapseVehicles">
+                    <i class="fas fa-fw fa-car"></i>
+                    <span>Vehicles</span>
+                </a>
+                <div id="collapseVehicles" class="collapse" aria-labelledby="headingVehicles" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Vehicle Management:</h6>
+                        <a class="collapse-item" href="vehicles_list.php">Vehicle List</a>
+                    </div>
+                </div>
+            </li>
+
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
