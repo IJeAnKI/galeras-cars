@@ -3,7 +3,7 @@ include('config/database.php');  // Cambiar de 'database.php' a 'config/database
 session_start();
 
 if (!$local_conn) {
-    echo "<script>alert('Error de conexión a la base de datos'); window.location='login.html';</script>";
+    echo "<script>alert('Error de conexión a la base de datos'); window.location='login.php';</script>";
     exit();
 }
 
@@ -11,7 +11,7 @@ $e_mail = isset($_POST['email']) ? $_POST['email'] : '';
 $p_asswd = isset($_POST['pswd']) ? $_POST['pswd'] : '';
 
 if (empty($e_mail) || empty($p_asswd)) {
-    echo "<script>alert('Por favor complete todos los campos'); window.location='login.html';</script>";
+    echo "<script>alert('Por favor complete todos los campos'); window.location='login.php';</script>";
     exit();
 }
 
@@ -69,7 +69,7 @@ if($res){
                 header('Location: index.php');
                 exit();
             } else {
-                echo "<script>alert('Password incorrecto'); window.location='login.html';</script>";
+                echo "<script>alert('Password incorrecto'); window.location='login.php';</script>";
                 exit();
             }
         } else {
@@ -81,14 +81,14 @@ if($res){
                 header('Location: index.php');
                 exit();
             } else {
-                echo "<script>alert('Password incorrecto'); window.location='login.html';</script>";
+                echo "<script>alert('Password incorrecto'); window.location='login.php';</script>";
                 exit();
             }
         }
     } else {
-        echo "<script>alert('Usuario no encontrado'); window.location='login.html';</script>";
+        echo "<script>alert('Usuario no encontrado'); window.location='login.php';</script>";
     }
 } else {
-    echo "<script>alert('Error en la consulta: " . addslashes(pg_last_error($local_conn)) . "'); window.location='login.html';</script>";
+    echo "<script>alert('Error en la consulta: " . addslashes(pg_last_error($local_conn)) . "'); window.location='login.php';</script>";
 }
 ?>

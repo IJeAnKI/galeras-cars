@@ -1,3 +1,17 @@
+<?php
+    session_start();
+    // Si ya está logueado, redirigir al dashboard
+    if (isset($_SESSION['user_id'])) {
+        header('Location: index.php');
+        exit();
+    }
+
+    // Verificar si hay sesión activa
+    $is_logged_in = isset($_SESSION['user_id']);
+    $user_name = $is_logged_in ? $_SESSION['user_name'] : '';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -64,10 +78,10 @@
                                             Iniciar Sesión
                                         </button>
                                         <hr>
-                                        <a href="index.html" class="btn btn-google btn-user btn-block">
+                                        <a href="index.php" class="btn btn-google btn-user btn-block">
                                             <i class="fab fa-google fa-fw"></i> Ingresar con Google
                                         </a>
-                                        <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                                        <a href="index.php" class="btn btn-facebook btn-user btn-block">
                                             <i class="fab fa-facebook-f fa-fw"></i> Ingresar con Facebook
                                         </a>
                                     </form>

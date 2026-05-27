@@ -1,9 +1,20 @@
 <?php
 session_start();
 
-// Verificar si hay sesión activa
-$is_logged_in = isset($_SESSION['user_id']);
-$user_name = $is_logged_in ? $_SESSION['user_name'] : '';
+// Cerrar sesión si se llama a logout.php o por GET
+if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
+    session_destroy();
+    header('Location: login.php');
+    exit();
+}
+
+// Verificar autenticación
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
+$user_name = $_SESSION['user_name'];
 ?>
 
 <!DOCTYPE html>
@@ -115,7 +126,7 @@ $user_name = $is_logged_in ? $_SESSION['user_name'] : '';
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="login.html">Login</a>
+                        <a class="collapse-item" href="login.php">Login</a>
                         <a class="collapse-item" href="register.html">Register</a>
                         <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
                         <div class="collapse-divider"></div>
@@ -210,37 +221,26 @@ $user_name = $is_logged_in ? $_SESSION['user_name'] : '';
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                    <?php echo $is_logged_in ? htmlspecialchars($user_name) : 'Invitado'; ?>
+                                    <?php echo htmlspecialchars($user_name); ?>
                                 </span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
-                                <?php if ($is_logged_in): ?>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Profile
-                                    </a>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Settings
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="logout.php">
-                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Logout
-                                    </a>
-                                <?php else: ?>
-                                    <a class="dropdown-item" href="login.html">
-                                        <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Iniciar Sesión
-                                    </a>
-                                    <a class="dropdown-item" href="register.html">
-                                        <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Registrarse
-                                    </a>
-                                <?php endif; ?>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Settings
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="?logout=true">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
                             </div>
                         </li>
 
@@ -346,22 +346,7 @@ $user_name = $is_logged_in ? $_SESSION['user_name'] : '';
                         </div>
                     </div>
 
-                    <?php if (!$is_logged_in): ?>
-                    <div class="row">
-                        <div class="col-xl-12">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Bienvenido a Galeras Cars</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p>Para acceder a todas las funcionalidades del sistema, por favor 
-                                    <a href="login.html">inicia sesión</a> o 
-                                    <a href="register.html">regístrate</a>.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php else: ?>
+                    <!-- Welcome Card -->
                     <div class="row">
                         <div class="col-xl-12">
                             <div class="card shadow mb-4">
@@ -374,7 +359,6 @@ $user_name = $is_logged_in ? $_SESSION['user_name'] : '';
                             </div>
                         </div>
                     </div>
-                    <?php endif; ?>
 
                 </div>
                 <!-- /.container-fluid -->

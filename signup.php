@@ -103,12 +103,12 @@ if ($supa_conn) {
     $res_supa = pg_query($supa_conn, $sql_supa);
     
     if ($res_supa) {
-        echo "<script>alert('Registro exitoso en ambos sistemas.'); window.location='login.html';</script>";
+        echo "<script>alert('Registro exitoso en ambos sistemas.'); window.location='login.php';</script>";
     } else {
         $supa_error = pg_last_error($supa_conn);
-        echo "<script>alert('Registro guardado solo localmente. Error en Supabase: " . addslashes($supa_error) . "'); window.location='login.html';</script>";
+        echo "<script>alert('Registro guardado solo localmente. Error en Supabase: " . addslashes($supa_error) . "'); window.location='login.php';</script>";
     }
 } else {
-    echo "<script>alert('Registro exitoso (solo local).'); window.location='login.html';</script>";
+    echo "<script>alert('Registro exitoso (solo local).'); window.location='login.php';</script>";
 }
 ?>
