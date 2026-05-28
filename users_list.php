@@ -15,7 +15,7 @@ if (!$local_conn) {
 }
 
 // Consulta para obtener los usuarios
-$sql = "SELECT id, firstname, lastname, email, mobile_phone, created_at FROM users ORDER BY id";
+$sql = "SELECT id, firstname, lastname, email, mobile_phone, profile_photo, created_at FROM users ORDER BY id";
 $result = pg_query($local_conn, $sql);
 
 if (!$result) {
@@ -97,8 +97,8 @@ if (!$result) {
             background-color: #5a6268;
         }
         .user-photo {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background-color: #4e73df;
             color: white;
@@ -106,15 +106,21 @@ if (!$result) {
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
+        }
+        .user-photo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
 
-    <a href="index.php" class="volver">Volver al Dashboard</a>
+    <a href="index.php" class="volver">← Volver al Dashboard</a>
 
-    <h1>Lista de Usuarios Registrados</h1>
+    <h1>📋 Lista de Usuarios Registrados</h1>
 
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
@@ -132,20 +138,31 @@ if (!$result) {
             <?php
             if (pg_num_rows($result) > 0) {
                 while ($row = pg_fetch_assoc($result)) {
-                    // Generar iniciales para la foto temporal
-                    $initials = strtoupper(substr($row['firstname'], 0, 1) . substr($row['lastname'], 0, 1));
+                    // ========== MOSTRAR FOTO CORRECTAMENTE ==========
+                    $photo_html = '';
+                    
+                    // Verificar si tiene foto guardada y el archivo existe
+                    if (!empty($row['profile_photo']) && file_exists($row['profile_photo'])) {
+                        // Mostrar la imagen real
+                        $photo_html = "<img src='" . $row['profile_photo'] . "' class='user-photo-img' alt='Foto'>";
+                    } else {
+                        // Mostrar iniciales como respaldo
+                        $initials = strtoupper(substr($row['firstname'], 0, 1) . substr($row['lastname'], 0, 1));
+                        $photo_html = "<div class='user-photo'>" . $initials . "</div>";
+                    }
                     
                     echo "<tr>";
                     echo "<td>" . $row['id'] . "</td>";
-                    echo "<td><div class='user-photo'>" . $initials . "</div></td>";
+                    echo "<td>" . $photo_html . "</td>";
                     echo "<td>" . htmlspecialchars($row['firstname'] . " " . $row['lastname']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                    echo "<td>" . (!empty($row['mobile_phone']) ? htmlspecialchars($row['mobile_phone']) : '—') . "</td>";
+                    $phone = !empty($row['mobile_phone']) ? htmlspecialchars($row['mobile_phone']) : '—';
+                    echo "<td>" . $phone . "</td>";
                     echo "<td>" . date('d/m/Y', strtotime($row['created_at'])) . "</td>";
                     echo "<td>
-                            <a href='edit_user.php?id=" . $row['id'] . "' class='btn btn-edit'> Editar</a>
-                            <a href='delete_user.php?id=" . $row['id'] . "' class='btn btn-delete' onclick='return confirm(\"¿Estás seguro de eliminar este usuario?\")'> Eliminar</a>
-                            </td>";
+                            <a href='edit_user.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ Editar</a>
+                            <a href='delete_user.php?id=" . $row['id'] . "' class='btn btn-delete' onclick='return confirm(\"¿Estás seguro de eliminar este usuario?\")'>🗑️ Eliminar</a>
+                            </a>";
                     echo "</tr>";
                 }
             } else {

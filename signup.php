@@ -1,5 +1,5 @@
 <?php
-include('config/database.php');  // Cambiar de 'database.php' a 'config/database.php'
+include('config/database.php');
 
 // Verificar conexiones
 if (!$local_conn) {
@@ -21,6 +21,45 @@ if (empty($f_name) || empty($l_name) || empty($e_mail) || empty($p_sword)) {
 }
 
 $enc_pass = password_hash($p_sword, PASSWORD_BCRYPT);
+
+// ========== PROCESAR FOTO DE PERFIL ==========
+$profile_photo_path = null;
+
+if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] == 0) {
+    $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    $filename = $_FILES['profile_photo']['name'];
+    $filetype = pathinfo($filename, PATHINFO_EXTENSION);
+    $filesize = $_FILES['profile_photo']['size'];
+    
+    // Verificar extensión
+    if (!in_array(strtolower($filetype), $allowed)) {
+        echo "<script>alert('Error: Solo se permiten archivos JPG, JPEG, PNG y GIF'); window.location='register.html';</script>";
+        exit();
+    }
+    
+    // Verificar tamaño (máximo 2MB)
+    if ($filesize > 2097152) {
+        echo "<script>alert('Error: La imagen no debe superar los 2MB'); window.location='register.html';</script>";
+        exit();
+    }
+    
+    // Crear nombre único para la imagen
+    $new_filename = uniqid() . '_' . time() . '.' . $filetype;
+    $upload_path = 'uploads/profiles/' . $new_filename;
+    
+    // Crear carpeta si no existe
+    if (!file_exists('uploads/profiles/')) {
+        mkdir('uploads/profiles/', 0777, true);
+    }
+    
+    // Mover archivo a la carpeta
+    if (move_uploaded_file($_FILES['profile_photo']['tmp_name'], $upload_path)) {
+        $profile_photo_path = $upload_path;
+    } else {
+        echo "<script>alert('Error al subir la imagen'); window.location='register.html';</script>";
+        exit();
+    }
+}
 
 // ========== GUARDAR EN LOCAL ==========
 // Verificar qué tabla existe en local (users o users_model)
@@ -68,24 +107,30 @@ $check_email = "SELECT email FROM $local_table WHERE email = '$e_mail'";
 $res_email = pg_query($local_conn, $check_email);
 
 if ($res_email && pg_num_rows($res_email) > 0) {
-    echo "<script>alert('Error: El correo electrónico \"$e_mail\" ya está registrado. Por favor, use uno diferente.'); window.location='register.html';</script>";
+    echo "<script>alert('Error: El correo electrónico \"$e_mail\" ya está registrado.'); window.location='register.html';</script>";
     exit();
 }
 
-// Verificar teléfono en local
+// Verificar teléfono en local (solo si no está vacío)
 if (!empty($m_phone)) {
     $check_phone = "SELECT mobile_phone FROM $local_table WHERE mobile_phone = '$m_phone'";
     $res_phone = pg_query($local_conn, $check_phone);
     
     if ($res_phone && pg_num_rows($res_phone) > 0) {
-        echo "<script>alert('Error: El número de celular \"$m_phone\" ya está registrado en nuestro sistema.'); window.location='register.html';</script>";
+        echo "<script>alert('Error: El número de celular \"$m_phone\" ya está registrado.'); window.location='register.html';</script>";
         exit();
     }
 }
 
+// Preparar valor para teléfono (NULL si está vacío)
+$phone_value = !empty($m_phone) ? "'$m_phone'" : "NULL";
+
+// Preparar valor para foto (NULL si no hay)
+$photo_value = !empty($profile_photo_path) ? "'$profile_photo_path'" : "NULL";
+
 // Query para insertar en local
-$sql_local = "INSERT INTO $local_table ($local_firstname_col, $local_lastname_col, email, mobile_phone, $local_password_col)
-            VALUES('$f_name','$l_name','$e_mail','$m_phone','$enc_pass')";
+$sql_local = "INSERT INTO $local_table ($local_firstname_col, $local_lastname_col, email, mobile_phone, $local_password_col, profile_photo)
+            VALUES('$f_name','$l_name','$e_mail', $phone_value, '$enc_pass', $photo_value)";
 
 $res_local = pg_query($local_conn, $sql_local);
 
@@ -96,14 +141,15 @@ if (!$res_local) {
 
 // ========== GUARDAR EN SUPABASE ==========
 if ($supa_conn) {
-    // Supabase usa: tabla 'users', columnas 'firstname', 'lastname', 'password'
-    $sql_supa = "INSERT INTO users (firstname, lastname, email, mobile_phone, password)
-                VALUES('$f_name','$l_name','$e_mail','$m_phone','$enc_pass')";
+    $sql_supa = "INSERT INTO users (firstname, lastname, email, mobile_phone, password, profile_photo)
+                VALUES('$f_name','$l_name','$e_mail', $phone_value, '$enc_pass', $photo_value)";
     
     $res_supa = pg_query($supa_conn, $sql_supa);
     
     if ($res_supa) {
         echo "<script>alert('Registro exitoso en ambos sistemas.'); window.location='login.php';</script>";
+        header('Location: login.php');
+        exit();
     } else {
         $supa_error = pg_last_error($supa_conn);
         echo "<script>alert('Registro guardado solo localmente. Error en Supabase: " . addslashes($supa_error) . "'); window.location='login.php';</script>";
